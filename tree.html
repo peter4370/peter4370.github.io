@@ -16,14 +16,23 @@
     </style>
     <script src="js/jquery-3.6.0.min.js"></script>
     <script>
+        /**
+         * Clamps a number. Based on Zevan's idea: http://actionsnippet.com/?p=475
+         * params: val, min, max
+         * Author: Jakub Korzeniowski
+         * Agency: Softhis
+         * http://www.softhis.com
+         */
+        (function () { Math.clamp = function (a, b, c) { return Math.max(b, Math.min(c, a)); } })();
         var player = {
             money: 10,
             tree: { unlock: true, amount: 0, upgrade: 0, labor: 0, price: 1 },
             log: { unlock: false, amount: 0, upgrade: 0, labor: 0, price: 2 },
-            twobyfour:{ unlock: false, amount: 0, upgrade: 0, labor: 0, price: 4 },
-            chair:{ unlock: false, amount: 0, upgrade: 0, labor: 0, price: 20 }
+            twobyfour: { unlock: false, amount: 0, upgrade: 0, labor: 0, price: 4 },
+            chair: { unlock: false, amount: 0, upgrade: 0, labor: 0, price: 20 },
+            apple: { unlock: false, amount: 0, upgrade: 0, labor: 0, price: 5 }
         }
-        //TODO:ladder,🪑,🛏️,🚪,⚰️,📄,📕,🎴,🍎,🥧,🥢,🏠,🎻,🧹
+        //TODO:ladder,🛏️,🚪,⚰️,📄,📕,🎴,🍎,🥧,🥢,🏠,🎻,🧹
         var time = 0;
         var taxGrow = 2;
 
@@ -39,6 +48,9 @@
             }
             if (player.chair.unlock == false) {
                 $(".chair").hide();
+            }
+            if (player.apple.unlock == false) {
+                $(".apple").hide();
             }
             $(".unlock").show();
             $("#Switch_main").click();
@@ -62,12 +74,12 @@
             });
 
             $(".unlock").click(function () {
-                var type = $(this).attr("class").substr(7,100)
-                var cost = $("#Unlock_"+type+"_cost").html();
+                var type = $(this).attr("class").substr(7, 100)
+                var cost = $("#Unlock_" + type + "_cost").html();
                 if (player.money >= cost) {
                     player.money -= cost;
                     player[type].unlock = true;
-                    $("."+type).show();
+                    $("." + type).show();
                     $(this).hide();
                 }
             });
@@ -75,54 +87,54 @@
             $(".action").click(function () {
                 if ($(this).hasClass("tree"))
                     player.tree.amount += 1 + player.tree.upgrade;
-                else if ($(this).hasClass("log"))
-                {
+                else if ($(this).hasClass("log")) {
                     if (player.tree.amount >= (1 + player.log.upgrade)) {
                         player.tree.amount -= 1 + player.log.upgrade;
                         player.log.amount += 10 * (1 + player.log.upgrade);
                     }
                 }
-                else if ($(this).hasClass("twobyfour"))
-                {
+                else if ($(this).hasClass("twobyfour")) {
                     if (player.log.amount >= (1 + player.twobyfour.upgrade)) {
                         player.log.amount -= 1 + player.twobyfour.upgrade;
                         player.twobyfour.amount += 4 * (1 + player.twobyfour.upgrade);
                     }
                 }
-                else if ($(this).hasClass("chair"))
-                {
-                    if (player.twobyfour.amount >= (1 + player.chair.upgrade)*2) {
-                        player.twobyfour.amount -= 2*(1 + player.chair.upgrade);
+                else if ($(this).hasClass("chair")) {
+                    if (player.twobyfour.amount >= (1 + player.chair.upgrade) * 2) {
+                        player.twobyfour.amount -= 2 * (1 + player.chair.upgrade);
                         player.chair.amount += 1 + player.chair.upgrade;
                     }
                 }
+                else if ($(this).hasClass("apple")) {
+                    player.apple.amount += 10 * (Math.clamp(player.tree.amount,0,1 + player.apple.upgrade));
+                }
             });
-            $(".sell").click(function () {
-                var type = $(this).attr("class").substr(5, 100)
-                player.money += player[type].amount * player[type].price;
-                player[type].amount = 0;//TODO
+        $(".sell").click(function () {
+            var type = $(this).attr("class").substr(5, 100)
+            player.money += player[type].amount * player[type].price;
+            player[type].amount = 0;//TODO
 
-            });
-            $(".upgrade").click(function () {
-                var type = $(this).attr("class").substr(8, 100);
-                var cost = $("#Upgrade_" + type + "_cost").html()
-                if (player.money >= cost) {
-                    player.money -= cost;
-                    player[type].upgrade++;
-                    $("#Upgrade_" + type + "_cost").html(Math.round(cost * taxGrow));
-                    $("#Upgrade_" + type + "_amount").html(player[type].upgrade);
-                }
-            });
-            $(".labor").click(function () {
-                var type = $(this).attr("class").substr(6, 100);
-                var cost = $("#Labor_" + type + "_cost").html()
-                if (player.money >= cost) {
-                    player.money -= cost;
-                    player[type].labor++;
-                    $("#Labor_" + type + "_cost").html(Math.round(cost * taxGrow));
-                    $("#Labor_" + type + "_amount").html(player[type].labor);
-                }
-            });
+        });
+        $(".upgrade").click(function () {
+            var type = $(this).attr("class").substr(8, 100);
+            var cost = $("#Upgrade_" + type + "_cost").html()
+            if (player.money >= cost) {
+                player.money -= cost;
+                player[type].upgrade++;
+                $("#Upgrade_" + type + "_cost").html(Math.round(cost * taxGrow));
+                $("#Upgrade_" + type + "_amount").html(player[type].upgrade);
+            }
+        });
+        $(".labor").click(function () {
+            var type = $(this).attr("class").substr(6, 100);
+            var cost = $("#Labor_" + type + "_cost").html()
+            if (player.money >= cost) {
+                player.money -= cost;
+                player[type].labor++;
+                $("#Labor_" + type + "_cost").html(Math.round(cost * taxGrow));
+                $("#Labor_" + type + "_amount").html(player[type].labor);
+            }
+        });
         }
         function HideContent() {
             $("#Main").hide();
@@ -136,6 +148,7 @@
             $("#Log").html(player.log.amount);
             $("#Twobyfour").html(player.twobyfour.amount);
             $("#Chair").html(player.chair.amount);
+            $("#Apple").html(player.apple.amount);
             if (time > 9) {
                 for (i = 0; i < player.tree.labor; i++)
                     $(".action.tree").click();
@@ -145,6 +158,8 @@
                     $(".action.twobyfour").click();
                 for (i = 0; i < player.chair.labor; i++)
                     $(".action.chair").click();
+                for (i = 0; i < player.apple.labor; i++)
+                    $(".action.apple").click();
                 time = 0;
             }
             time++;
@@ -201,6 +216,12 @@
                     <td><button class="action chair">🔨</button></td>
                     <td><button class="sell chair">💵:20</button></td>
                 </tr>
+                <tr class="apple">
+                    <td>🍎:</td>
+                    <td id="Apple">0</td>
+                    <td><button class="action apple">🖐</button></td>
+                    <td><button class="sell apple">💵:5</button></td>
+                </tr>
             </table>
         </div>
         <div id="Upgrade">
@@ -239,6 +260,13 @@
                     <td id="Upgrade_chair_amount">0</td>
                     <td><button class="upgrade chair">⬆️</button></td>
                 </tr>
+                <tr class="apple">
+                    <td>手速鍛鍊</td>
+                    <td>蘋果產出+10</td>
+                    <td id="Upgrade_apple_cost">100</td>
+                    <td id="Upgrade_apple_amount">0</td>
+                    <td><button class="upgrade apple">⬆️</button></td>
+                </tr>
             </table>
         </div>
         <div id="Unlock">
@@ -265,6 +293,12 @@
                     <td>將2個原木製成1張椅子</td>
                     <td id="Unlock_chair_cost">4000</td>
                     <td><button class="unlock chair">🔓</button></td>
+                </tr>
+                <tr>
+                    <td>採蘋果</td>
+                    <td>每1顆樹可以採集10顆蘋果 不消耗樹</td>
+                    <td id="Unlock_apple_cost">500</td>
+                    <td><button class="unlock apple">🔓</button></td>
                 </tr>
             </table>
         </div>
@@ -303,6 +337,13 @@
                     <td id="Labor_chair_cost">4000</td>
                     <td id="Labor_chair_amount">0</td>
                     <td><button class="labor chair">👷‍♂️</button></td>
+                </tr>
+                <tr class="apple">
+                    <td>果農</td>
+                    <td>每一秒採集一次蘋果</td>
+                    <td id="Labor_apple_cost">500</td>
+                    <td id="Labor_apple_amount">0</td>
+                    <td><button class="labor apple">👷‍♂️</button></td>
                 </tr>
             </table>
         </div>
