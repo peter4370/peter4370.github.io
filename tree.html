@@ -16,25 +16,19 @@
     </style>
     <script src="js/jquery-3.6.0.min.js"></script>
     <script>
-        var money = 10;
+        var player = {
+            money: 10,
+            tree: { unlock: true, amount: 0, upgrade: 0, labor: 0, price: 1 },
+            log: { unlock: false, amount: 0, upgrade: 0, labor: 0, price: 2 }
+        }
         var time = 0;
-
-        var tree = 0;
-        var treeUpgrade = 0;
-        var treeLabor = 0;
-
-        var log_unlock = false;
-        var log = 0;
-        var logUpgrade = 0;
-        var logLabor = 0;
+        var taxGrow = 2;
 
         function LoadData() {
             //TODO
         }
-        function init()
-        {
-            if(log_unlock==false)
-            {
+        function init() {
+            if (player.log.unlock == false) {
                 $(".log").hide();
             }
             $("#Switch_main").click();
@@ -56,71 +50,52 @@
                 HideContent();
                 $("#Labor").show();
             });
-            $("#Action_tree").click(function () {
-                tree += 1 + treeUpgrade;//TODO
-            });
-            $("#Sell_tree").click(function () {
-                money += tree;
-                tree = 0;//TODO
-            });
-            $("#Upgrade_tree_buy").click(function () {
-                var cost = $("#Upgrade_tree_cost").html()
-                if (money >= cost) {
-                    money -= cost;
-                    treeUpgrade++;
-                    $("#Upgrade_tree_cost").html(Math.round(cost * 1.1));
-                    $("#Upgrade_tree_amount").html(treeUpgrade);
-                }
-            });
-            $("#Labor_tree_buy").click(function () {
-                var cost = $("#Labor_tree_cost").html()
-                if (money >= cost) {
-                    money -= cost;
-                    treeLabor++;
-                    $("#Labor_tree_cost").html(Math.round(cost * 1.1));
-                    $("#Labor_tree_amount").html(treeLabor);
-                }
-            });
+
             $("#Unlock_log__buy").click(function () {
                 var cost = $("#Unlock_log_cost").html();
-                if(money>=cost)
-                {
-                    money -= cost;
-                    log_unlock = true;
+                if (player.money >= cost) {
+                    player.money -= cost;
+                    player.log.unlock = true;
                     $(this).hide();
                     $(".log").show();
                 }
             });
-            $("#Action_log").click(function () {
-                if(tree>=(1+logUpgrade))
-                {
-                    tree-=1+logUpgrade;
-                    log += 10 * (1+logUpgrade);//TODO
-                }
-            });
-            $("#Sell_log").click(function () {
-                money += log;
-                log = 0;//TODO
-            });
-            $("#Upgrade_log_buy").click(function () {
-                var cost = $("#Upgrade_log_cost").html()
-                if (money >= cost) {
-                    money -= cost;
-                    logUpgrade++;
-                    $("#Upgrade_log_cost").html(Math.round(cost * 1.1));
-                    $("#Upgrade_log_amount").html(logUpgrade);
-                }
-            });
-            $("#Labor_log_buy").click(function () {
-                var cost = $("#Labor_log_cost").html()
-                if (money >= cost) {
-                    money -= cost;
-                    logLabor++;
-                    $("#Labor_log_cost").html(Math.round(cost * 1.1));
-                    $("#Labor_log_amount").html(logLabor);
-                }
-            });
 
+            $(".action").click(function () {
+                if ($(this).hasClass("tree"))
+                    player.tree.amount += 1 + player.tree.upgrade;//TODO
+                else if ($(this).hasClass("log"))
+                    if (player.tree.amount >= (1 + player.log.upgrade)) {
+                        player.tree.amount -= 1 + player.log.upgrade;
+                        player.log.amount += 10 * (1 + player.log.upgrade);//TODO
+                    }
+            });
+            $(".sell").click(function () {
+                var type = $(this).attr("class").substr(5, 100)
+                player.money += player[type].amount * player[type].price;
+                player[type].amount = 0;//TODO
+
+            });
+            $(".upgrade").click(function () {
+                var type = $(this).attr("class").substr(8, 100);
+                var cost = $("#Upgrade_" + type + "_cost").html()
+                if (player.money >= cost) {
+                    player.money -= cost;
+                    player[type].upgrade++;
+                    $("#Upgrade_" + type + "_cost").html(Math.round(cost * taxGrow));
+                    $("#Upgrade_" + type + "_amount").html(player[type].upgrade);
+                }
+            });
+            $(".labor").click(function () {
+                var type = $(this).attr("class").substr(6, 100);
+                var cost = $("#Labor_" + type + "_cost").html()
+                if (player.money >= cost) {
+                    player.money -= cost;
+                    player[type].labor++;
+                    $("#Labor_" + type + "_cost").html(Math.round(cost * taxGrow));
+                    $("#Labor_" + type + "_amount").html(player[type].labor);
+                }
+            });
         }
         function HideContent() {
             $("#Main").hide();
@@ -129,15 +104,14 @@
             $("#Labor").hide();
         }
         function Update() {
-            $("#Money").html(money);
-            $("#Tree").html(tree);
-            $("#Log").html(log);
-            if(time>9)
-            {
-                for(i=0;i<treeLabor;i++)
-                    $("#Action_tree").click();
-                for(i=0;i<logLabor;i++)
-                    $("#Action_log").click();
+            $("#Money").html(player.money);
+            $("#Tree").html(player.tree.amount);
+            $("#Log").html(player.log.amount);
+            if (time > 9) {
+                for (i = 0; i < player.tree.labor; i++)
+                    $(".action.tree").click();
+                for (i = 0; i < player.log.labor; i++)
+                    $(".action.log").click();
                 time = 0;
             }
             time++;
@@ -148,7 +122,7 @@
             init();
             setInterval(Update, 100)
         });
-        
+
     </script>
     <title>🌳</title>
 </head>
@@ -173,14 +147,14 @@
                 <tr>
                     <td>🌳:</td>
                     <td id="Tree">0</td>
-                    <td><button id="Action_tree">🌱</button></td>
-                    <td><button id="Sell_tree">💵</button></td>
+                    <td><button class="action tree">🌱</button></td>
+                    <td><button class="sell tree">💵:<span class="price">1</span></button></td>
                 </tr>
                 <tr class="log">
                     <td>🥖:</td>
                     <td id="Log">0</td>
-                    <td><button id="Action_log">🪓</button></td>
-                    <td><button id="Sell_log">💵</button></td>
+                    <td><button class="action log">🪓</button></td>
+                    <td><button class="sell log">💵:2</button></td>
                 </tr>
             </table>
         </div>
@@ -197,14 +171,14 @@
                     <td>樹產出+1</td>
                     <td id="Upgrade_tree_cost">10</td>
                     <td id="Upgrade_tree_amount">0</td>
-                    <td><button id="Upgrade_tree_buy">⬆️</button></td>
+                    <td><button class="upgrade tree">⬆️</button></td>
                 </tr>
                 <tr class="log">
                     <td>斧頭加強</td>
                     <td>原木產出+10</td>
                     <td id="Upgrade_log_cost">100</td>
                     <td id="Upgrade_log_amount">0</td>
-                    <td><button id="Upgrade_log_buy">⬆️</button></td>
+                    <td><button class="upgrade log">⬆️</button></td>
                 </tr>
             </table>
         </div>
@@ -219,7 +193,7 @@
                     <td>砍樹</td>
                     <td>砍樹產出10原木</td>
                     <td id="Unlock_log_cost">100</td>
-                    <td><button id="Unlock_log__buy">⬆️</button></td>
+                    <td><button id="Unlock_log__buy">🔓</button></td>
                 </tr>
             </table>
         </div>
@@ -236,14 +210,14 @@
                     <td>每一秒幫你種一次樹</td>
                     <td id="Labor_tree_cost">100</td>
                     <td id="Labor_tree_amount">0</td>
-                    <td><button id="Labor_tree_buy">👷‍♂️</button></td>
+                    <td><button class="labor tree">👷‍♂️</button></td>
                 </tr>
                 <tr class="log">
                     <td>伐木工</td>
                     <td>每一秒幫你砍一次樹</td>
                     <td id="Labor_log_cost">1000</td>
                     <td id="Labor_log_amount">0</td>
-                    <td><button id="Labor_log_buy">👷‍♂️</button></td>
+                    <td><button class="labor log">👷‍♂️</button></td>
                 </tr>
             </table>
         </div>
