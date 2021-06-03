@@ -19,8 +19,11 @@
         var player = {
             money: 10,
             tree: { unlock: true, amount: 0, upgrade: 0, labor: 0, price: 1 },
-            log: { unlock: false, amount: 0, upgrade: 0, labor: 0, price: 2 }
+            log: { unlock: false, amount: 0, upgrade: 0, labor: 0, price: 2 },
+            twobyfour:{ unlock: false, amount: 0, upgrade: 0, labor: 0, price: 4 },
+            chair:{ unlock: false, amount: 0, upgrade: 0, labor: 0, price: 20 }
         }
+        //TODO:ladder,🪑,🛏️,🚪,⚰️,📄,📕,🎴,🍎,🥧,🥢,🏠,🎻,🧹
         var time = 0;
         var taxGrow = 2;
 
@@ -31,6 +34,13 @@
             if (player.log.unlock == false) {
                 $(".log").hide();
             }
+            if (player.twobyfour.unlock == false) {
+                $(".twobyfour").hide();
+            }
+            if (player.chair.unlock == false) {
+                $(".chair").hide();
+            }
+            $(".unlock").show();
             $("#Switch_main").click();
         }
         function SetButton() {
@@ -51,24 +61,41 @@
                 $("#Labor").show();
             });
 
-            $("#Unlock_log__buy").click(function () {
-                var cost = $("#Unlock_log_cost").html();
+            $(".unlock").click(function () {
+                var type = $(this).attr("class").substr(7,100)
+                var cost = $("#Unlock_"+type+"_cost").html();
                 if (player.money >= cost) {
                     player.money -= cost;
-                    player.log.unlock = true;
+                    player[type].unlock = true;
+                    $("."+type).show();
                     $(this).hide();
-                    $(".log").show();
                 }
             });
 
             $(".action").click(function () {
                 if ($(this).hasClass("tree"))
-                    player.tree.amount += 1 + player.tree.upgrade;//TODO
+                    player.tree.amount += 1 + player.tree.upgrade;
                 else if ($(this).hasClass("log"))
+                {
                     if (player.tree.amount >= (1 + player.log.upgrade)) {
                         player.tree.amount -= 1 + player.log.upgrade;
-                        player.log.amount += 10 * (1 + player.log.upgrade);//TODO
+                        player.log.amount += 10 * (1 + player.log.upgrade);
                     }
+                }
+                else if ($(this).hasClass("twobyfour"))
+                {
+                    if (player.log.amount >= (1 + player.twobyfour.upgrade)) {
+                        player.log.amount -= 1 + player.twobyfour.upgrade;
+                        player.twobyfour.amount += 4 * (1 + player.twobyfour.upgrade);
+                    }
+                }
+                else if ($(this).hasClass("chair"))
+                {
+                    if (player.twobyfour.amount >= (1 + player.chair.upgrade)*2) {
+                        player.twobyfour.amount -= 2*(1 + player.chair.upgrade);
+                        player.chair.amount += 1 + player.chair.upgrade;
+                    }
+                }
             });
             $(".sell").click(function () {
                 var type = $(this).attr("class").substr(5, 100)
@@ -107,11 +134,17 @@
             $("#Money").html(player.money);
             $("#Tree").html(player.tree.amount);
             $("#Log").html(player.log.amount);
+            $("#Twobyfour").html(player.twobyfour.amount);
+            $("#Chair").html(player.chair.amount);
             if (time > 9) {
                 for (i = 0; i < player.tree.labor; i++)
                     $(".action.tree").click();
                 for (i = 0; i < player.log.labor; i++)
                     $(".action.log").click();
+                for (i = 0; i < player.twobyfour.labor; i++)
+                    $(".action.twobyfour").click();
+                for (i = 0; i < player.chair.labor; i++)
+                    $(".action.chair").click();
                 time = 0;
             }
             time++;
@@ -151,10 +184,22 @@
                     <td><button class="sell tree">💵:<span class="price">1</span></button></td>
                 </tr>
                 <tr class="log">
-                    <td>🥖:</td>
+                    <td><img src="img/wood.png" alt="" height=16>:</td>
                     <td id="Log">0</td>
                     <td><button class="action log">🪓</button></td>
                     <td><button class="sell log">💵:2</button></td>
+                </tr>
+                <tr class="twobyfour">
+                    <td>🧱:</td>
+                    <td id="Twobyfour">0</td>
+                    <td><button class="action twobyfour">🔨</button></td>
+                    <td><button class="sell twobyfour">💵:4</button></td>
+                </tr>
+                <tr class="chair">
+                    <td>🪑:</td>
+                    <td id="Chair">0</td>
+                    <td><button class="action chair">🔨</button></td>
+                    <td><button class="sell chair">💵:20</button></td>
                 </tr>
             </table>
         </div>
@@ -180,6 +225,20 @@
                     <td id="Upgrade_log_amount">0</td>
                     <td><button class="upgrade log">⬆️</button></td>
                 </tr>
+                <tr class="twobyfour">
+                    <td>木鋸加強</td>
+                    <td>木材產出+4</td>
+                    <td id="Upgrade_twobyfour_cost">200</td>
+                    <td id="Upgrade_twobyfour_amount">0</td>
+                    <td><button class="upgrade twobyfour">⬆️</button></td>
+                </tr>
+                <tr class="chair">
+                    <td>工具加強</td>
+                    <td>椅子產出+1</td>
+                    <td id="Upgrade_chair_cost">400</td>
+                    <td id="Upgrade_chair_amount">0</td>
+                    <td><button class="upgrade chair">⬆️</button></td>
+                </tr>
             </table>
         </div>
         <div id="Unlock">
@@ -191,9 +250,21 @@
                 </tr>
                 <tr>
                     <td>砍樹</td>
-                    <td>砍樹產出10原木</td>
+                    <td>砍1顆樹產出10原木</td>
                     <td id="Unlock_log_cost">100</td>
-                    <td><button id="Unlock_log__buy">🔓</button></td>
+                    <td><button class="unlock log">🔓</button></td>
+                </tr>
+                <tr>
+                    <td>鋸木</td>
+                    <td>將1個原木加工成4個木材</td>
+                    <td id="Unlock_twobyfour_cost">1000</td>
+                    <td><button class="unlock twobyfour">🔓</button></td>
+                </tr>
+                <tr>
+                    <td>製造椅子</td>
+                    <td>將2個原木製成1張椅子</td>
+                    <td id="Unlock_chair_cost">4000</td>
+                    <td><button class="unlock chair">🔓</button></td>
                 </tr>
             </table>
         </div>
@@ -218,6 +289,20 @@
                     <td id="Labor_log_cost">1000</td>
                     <td id="Labor_log_amount">0</td>
                     <td><button class="labor log">👷‍♂️</button></td>
+                </tr>
+                <tr class="twobyfour">
+                    <td>木工</td>
+                    <td>每一秒鋸一次原木</td>
+                    <td id="Labor_twobyfour_cost">2000</td>
+                    <td id="Labor_twobyfour_amount">0</td>
+                    <td><button class="labor twobyfour">👷‍♂️</button></td>
+                </tr>
+                <tr class="chair">
+                    <td>木匠</td>
+                    <td>每一秒做一張椅子</td>
+                    <td id="Labor_chair_cost">4000</td>
+                    <td id="Labor_chair_amount">0</td>
+                    <td><button class="labor chair">👷‍♂️</button></td>
                 </tr>
             </table>
         </div>
