@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ZH-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        table {
+            padding: 10px;
+        }
+
+        td {
+            padding: 5px;
+        }
+    </style>
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script>
+        var money = 10;
+        var time = 0;
+
+        var tree = 0;
+        var treeUpgrade = 0;
+        var treeLabor = 0;
+
+        var log_unlock = false;
+        var log = 0;
+        var logUpgrade = 0;
+        var logLabor = 0;
+
+        function LoadData() {
+            //TODO
+        }
+        function init()
+        {
+            if(log_unlock==false)
+            {
+                $(".log").hide();
+            }
+            $("#Switch_main").click();
+        }
+        function SetButton() {
+            $("#Switch_main").click(function () {
+                HideContent();
+                $("#Main").show();
+            });
+            $("#Switch_upgrade").click(function () {
+                HideContent();
+                $("#Upgrade").show();
+            });
+            $("#Switch_unlock").click(function () {
+                HideContent();
+                $("#Unlock").show();
+            });
+            $("#Switch_labor").click(function () {
+                HideContent();
+                $("#Labor").show();
+            });
+            $("#Action_tree").click(function () {
+                tree += 1 + treeUpgrade;//TODO
+            });
+            $("#Sell_tree").click(function () {
+                money += tree;
+                tree = 0;//TODO
+            });
+            $("#Upgrade_tree_buy").click(function () {
+                var cost = $("#Upgrade_tree_cost").html()
+                if (money >= cost) {
+                    money -= cost;
+                    treeUpgrade++;
+                    $("#Upgrade_tree_cost").html(Math.round(cost * 1.1));
+                    $("#Upgrade_tree_amount").html(treeUpgrade);
+                }
+            });
+            $("#Labor_tree_buy").click(function () {
+                var cost = $("#Labor_tree_cost").html()
+                if (money >= cost) {
+                    money -= cost;
+                    treeLabor++;
+                    $("#Labor_tree_cost").html(Math.round(cost * 1.1));
+                    $("#Labor_tree_amount").html(treeLabor);
+                }
+            });
+            $("#Unlock_log__buy").click(function () {
+                var cost = $("#Unlock_log_cost").html();
+                if(money>=cost)
+                {
+                    money -= cost;
+                    log_unlock = true;
+                    $(this).hide();
+                    $(".log").show();
+                }
+            });
+            $("#Action_log").click(function () {
+                if(tree>=(1+logUpgrade))
+                {
+                    tree-=1+logUpgrade;
+                    log += 10 * (1+logUpgrade);//TODO
+                }
+            });
+            $("#Sell_log").click(function () {
+                money += log;
+                log = 0;//TODO
+            });
+            $("#Upgrade_log_buy").click(function () {
+                var cost = $("#Upgrade_log_cost").html()
+                if (money >= cost) {
+                    money -= cost;
+                    logUpgrade++;
+                    $("#Upgrade_log_cost").html(Math.round(cost * 1.1));
+                    $("#Upgrade_log_amount").html(logUpgrade);
+                }
+            });
+            $("#Labor_log_buy").click(function () {
+                var cost = $("#Labor_log_cost").html()
+                if (money >= cost) {
+                    money -= cost;
+                    logLabor++;
+                    $("#Labor_log_cost").html(Math.round(cost * 1.1));
+                    $("#Labor_log_amount").html(logLabor);
+                }
+            });
+
+        }
+        function HideContent() {
+            $("#Main").hide();
+            $("#Upgrade").hide();
+            $("#Unlock").hide();
+            $("#Labor").hide();
+        }
+        function Update() {
+            $("#Money").html(money);
+            $("#Tree").html(tree);
+            $("#Log").html(log);
+            if(time>9)
+            {
+                for(i=0;i<treeLabor;i++)
+                    $("#Action_tree").click();
+                for(i=0;i<logLabor;i++)
+                    $("#Action_log").click();
+                time = 0;
+            }
+            time++;
+        }
+        $(document).ready(function () {
+            LoadData();
+            SetButton();
+            init();
+            setInterval(Update, 100)
+        });
+        
+    </script>
+    <title>🌳</title>
+</head>
+
+<body>
+    <div class="Header">
+        <table>
+            <tr>
+                <td>💰:</td>
+                <td id="Money">0</td>
+                <td><button id="Switch_main">主頁面</button></td>
+                <td><button id="Switch_upgrade">升級</button></td>
+                <td><button id="Switch_unlock">解鎖</button></td>
+                <td><button id="Switch_labor">雇員</button></td>
+            </tr>
+        </table>
+    </div>
+    <hr>
+    <div class="Content">
+        <div id="Main">
+            <table>
+                <tr>
+                    <td>🌳:</td>
+                    <td id="Tree">0</td>
+                    <td><button id="Action_tree">🌱</button></td>
+                    <td><button id="Sell_tree">💵</button></td>
+                </tr>
+                <tr class="log">
+                    <td>🥖:</td>
+                    <td id="Log">0</td>
+                    <td><button id="Action_log">🪓</button></td>
+                    <td><button id="Sell_log">💵</button></td>
+                </tr>
+            </table>
+        </div>
+        <div id="Upgrade">
+            <table>
+                <tr>
+                    <th>升級</th>
+                    <th>說明</th>
+                    <th>💸</th>
+                    <th>等級</th>
+                </tr>
+                <tr>
+                    <td>擴建林場</td>
+                    <td>樹產出+1</td>
+                    <td id="Upgrade_tree_cost">10</td>
+                    <td id="Upgrade_tree_amount">0</td>
+                    <td><button id="Upgrade_tree_buy">⬆️</button></td>
+                </tr>
+                <tr class="log">
+                    <td>斧頭加強</td>
+                    <td>原木產出+10</td>
+                    <td id="Upgrade_log_cost">100</td>
+                    <td id="Upgrade_log_amount">0</td>
+                    <td><button id="Upgrade_log_buy">⬆️</button></td>
+                </tr>
+            </table>
+        </div>
+        <div id="Unlock">
+            <table>
+                <tr>
+                    <th>解鎖</th>
+                    <th>說明</th>
+                    <th>💸</th>
+                </tr>
+                <tr>
+                    <td>砍樹</td>
+                    <td>砍樹產出10原木</td>
+                    <td id="Unlock_log_cost">100</td>
+                    <td><button id="Unlock_log__buy">⬆️</button></td>
+                </tr>
+            </table>
+        </div>
+        <div id="Labor">
+            <table>
+                <tr>
+                    <th>雇員</th>
+                    <th>說明</th>
+                    <th>💸</th>
+                    <th>人數</th>
+                </tr>
+                <tr>
+                    <td>林場員工</td>
+                    <td>每一秒幫你種一次樹</td>
+                    <td id="Labor_tree_cost">100</td>
+                    <td id="Labor_tree_amount">0</td>
+                    <td><button id="Labor_tree_buy">👷‍♂️</button></td>
+                </tr>
+                <tr class="log">
+                    <td>伐木工</td>
+                    <td>每一秒幫你砍一次樹</td>
+                    <td id="Labor_log_cost">1000</td>
+                    <td id="Labor_log_amount">0</td>
+                    <td><button id="Labor_log_buy">👷‍♂️</button></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>
