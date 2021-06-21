@@ -186,6 +186,18 @@
 
         function LoadData() {
             //TODO
+            var resource = ["tree", "log", "twobyfour", "chair","apple"];
+            resource.forEach(function(x){
+                $("#Upgrade_"+x+"_cost").html($("#Upgrade_"+x+"_cost").html() * (taxGrow ** player[x].upgrade));
+                $("#Upgrade_"+x+"_amount").html(player[x].upgrade);
+                $("#Labor_"+x+"_cost").html($("#Upgrade_"+x+"_cost").html() * (taxGrow ** player[x].upgrade));
+                $("#Labor_"+x+"_amount").html(player[x].upgrade);
+                
+                if (player[x].unlock) {
+                    $("."+x).show();
+                    $(".unlock."+x).hide();
+                }
+            });
         }
         function init() {
             if (player.log.unlock == false) {
@@ -245,42 +257,6 @@
                     }
                 });
                 $("#table_register").hide();
-            });
-            $("#button_login").click(function () {
-                $("#table_login").show();
-                $("#table_register").hide();
-            });
-            $("#button_cancel_login").click(function () {
-                $("#table_login").hide();
-            });
-            $("#button_submit_login").click(function () {
-                var data = JSON.stringify({
-                    account: $("#input_login_account").val(),
-                    password: $("#input_login_password").val()
-                });
-                $.ajax({
-                    url: api,
-                    method: "POST",
-                    dataType: "json",
-                    data: data,
-                    success: function (response) {
-                        console.log("login success:" + response);
-                        var result = jQuery.parseJSON(response);
-                        if (result.success) {
-                            alert("登入成功:" + result.message);
-                            $("#button_logout").show();
-                            $("#button_login").hide();
-                            $("#button_register").hide();
-                        }
-                        else {
-                            alert("登入失敗:" + result.error);
-                        }
-                    },
-                    error: function (throwError) {
-                        alert("login error:" + throwError);
-                    }
-                });
-                $("#table_login").hide();
             });
 
             $(".unlock").click(function (e) {
@@ -424,7 +400,6 @@
             time++;
         }
         $(document).ready(function () {
-            LoadData();
             SetButton();
             init();
             setInterval(Update, 100)
@@ -776,10 +751,10 @@
                     <td><button id="button_register">註冊</button></td>
                 </tr>
                 <tr>
-                    <td><button id="button_login">登入</button></td>
+                    <td><button id="button_save">存檔</button></td>
                 </tr>
                 <tr>
-                    <td><button id="button_logout" style="display: none;">登出</button></td>
+                    <td><button id="button_load">讀檔</button></td>
                 </tr>
             </table>
             <table id="table_register" style="display: none;">
@@ -800,20 +775,7 @@
                     <td><button id="button_cancel_register">取消</button></td>
                 </tr>
             </table>
-            <table id="table_login" style="display: none;">
-                <tr>
-                    <td>帳號</td>
-                    <td><input type="text" id="input_login_account"></td>
-                </tr>
-                <tr>
-                    <td>密碼</td>
-                    <td><input type="password" id="input_login_password"></td>
-                </tr>
-                <tr>
-                    <td><button id="button_submit_login">確認</button></td>
-                    <td><button id="button_cancel_login">取消</button></td>
-                </tr>
-            </table>
+
         </div>
     </div>
     </div>
