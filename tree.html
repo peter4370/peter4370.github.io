@@ -5,13 +5,159 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="tree.ico" rel="shortcut icon">
     <style>
+        @import url("https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap");
+        @import url("https://fonts.googleapis.com/css2?family=Finger+Paint&display=swap");
+
+        body {
+            margin: 0 auto;
+            text-align: center;
+            max-width: 100%;
+            margin: 0 auto;
+            user-select: none;
+        }
+
         table {
             padding: 10px;
         }
 
-        td {
-            padding: 5px;
+        tr {
+            height: 30px;
+        }
+
+        td div {
+            width: 95px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+        }
+
+        #Stock td div {
+            width: 75px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+        }
+
+
+        .small {
+            font-size: 8px;
+        }
+
+        .Header {
+            background: linear-gradient(-45deg, #cccfb1, #87db76, #d2e0e4, #7abd8d);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            font-family: "Finger Paint", cursive;
+            font-size: 18px;
+            height: 10vh;
+            min-height: 50px;
+            z-index: 99;
+            position: fixed;
+            width: 100%;
+            max-width: 100%;
+            box-shadow: 0px 0px 29px 1px rgb(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+        }
+
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        #Switch_system {
+            position: fixed;
+            right: 25px;
+            top: 10px;
+        }
+
+        img {
+
+            cursor: pointer;
+            width: 65px;
+            height: 65px;
+        }
+
+        #total_money {
+            position: fixed;
+            right: 130px;
+            top: 10px;
+            height: 10vh;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+
+            min-height: 100vh;
+            background: linear-gradient(-45deg, rgb(252, 255, 240), #ebfce7);
+
+        }
+
+        .Content {
+            margin: 0px auto;
+            height: 70vh;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+
+            font-family: "Finger Paint", cursive;
+            font-size: 24px;
+            background-color: white;
+            width: 500px;
+            height: 500px;
+            min-height: 300px;
+            box-shadow: 0px 0px 14px 2px rgb(0, 0, 0, 0.5);
+            border-radius: 10px 10px 10px 10px;
+        }
+
+        .navigation {
+            display: grid;
+            grid-template-columns: 50% 50%;
+            height: 10%;
+            min-height: 30px;
+            margin-bottom: 15px;
+        }
+
+        .navigation div {
+            width: 250px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+
+        }
+
+        .navigation div:hover {
+            background-color: rgb(0, 0, 0, 0.05);
+            transition: background-color 0.2s;
+        }
+
+        .floatline {
+            border-bottom: 2px solid;
+            width: 150px;
+            height: 47px;
+            position: fixed;
+            cursor: none;
         }
     </style>
     <script src="js/jquery-3.6.0.min.js"></script>
@@ -40,18 +186,6 @@
 
         function LoadData() {
             //TODO
-            var resource = ["tree", "log", "twobyfour", "chair","apple"];
-            resource.forEach(function(x){
-                $("#Upgrade_"+x+"_cost").html($("#Upgrade_"+x+"_cost").html() * (taxGrow ** player[x].upgrade));
-                $("#Upgrade_"+x+"_amount").html(player[x].upgrade);
-                $("#Labor_"+x+"_cost").html($("#Upgrade_"+x+"_cost").html() * (taxGrow ** player[x].upgrade));
-                $("#Labor_"+x+"_amount").html(player[x].upgrade);
-                
-                if (player[x].unlock) {
-                    $("."+x).show();
-                    $(".unlock."+x).hide();
-                }
-            });
         }
         function init() {
             if (player.log.unlock == false) {
@@ -74,18 +208,12 @@
                 HideContent();
                 $("#Main").show();
             });
-            $("#Switch_upgrade").click(function () {
+
+            $("#Switch_stock").click(function () {
                 HideContent();
-                $("#Upgrade").show();
+                $("#Stock").show();
             });
-            $("#Switch_unlock").click(function () {
-                HideContent();
-                $("#Unlock").show();
-            });
-            $("#Switch_labor").click(function () {
-                HideContent();
-                $("#Labor").show();
-            });
+
             $("#Switch_system").click(function () {
                 HideContent();
                 $("#System").show();
@@ -118,9 +246,44 @@
                 });
                 $("#table_register").hide();
             });
+            $("#button_login").click(function () {
+                $("#table_login").show();
+                $("#table_register").hide();
+            });
+            $("#button_cancel_login").click(function () {
+                $("#table_login").hide();
+            });
+            $("#button_submit_login").click(function () {
+                var data = JSON.stringify({
+                    account: $("#input_login_account").val(),
+                    password: $("#input_login_password").val()
+                });
+                $.ajax({
+                    url: api,
+                    method: "POST",
+                    dataType: "json",
+                    data: data,
+                    success: function (response) {
+                        console.log("login success:" + response);
+                        var result = jQuery.parseJSON(response);
+                        if (result.success) {
+                            alert("登入成功:" + result.message);
+                            $("#button_logout").show();
+                            $("#button_login").hide();
+                            $("#button_register").hide();
+                        }
+                        else {
+                            alert("登入失敗:" + result.error);
+                        }
+                    },
+                    error: function (throwError) {
+                        alert("login error:" + throwError);
+                    }
+                });
+                $("#table_login").hide();
+            });
 
-
-            $(".unlock").click(function () {
+            $(".unlock").click(function (e) {
                 var type = $(this).attr("class").substr(7, 100)
                 var cost = $("#Unlock_" + type + "_cost").html();
                 if (player.money >= cost) {
@@ -128,51 +291,75 @@
                     player[type].unlock = true;
                     $("." + type).show();
                     $(this).hide();
+                    floatfont(e,"unlock "+type,"green");
+                }else{
+                    floatfont(e,"lack of money","red");
                 }
+                
+                
             });
 
-            $(".action").click(function () {
-                if ($(this).hasClass("tree"))
+            $(".action").click(function (e) {
+                if ($(this).hasClass("tree")){
                     player.tree.amount += 1 + player.tree.upgrade;
+                    floatfont(e,"+1 tree","green");
+                    }
                 else if ($(this).hasClass("log")) {
                     if (player.tree.amount >= (1 + player.log.upgrade)) {
                         player.tree.amount -= 1 + player.log.upgrade;
                         player.log.amount += 10 * (1 + player.log.upgrade);
+                        floatfont(e,"+10 log","green");
+                    }else{
+                        floatfont(e,"lack of tree","red");
                     }
                 }
                 else if ($(this).hasClass("twobyfour")) {
                     if (player.log.amount >= (1 + player.twobyfour.upgrade)) {
                         player.log.amount -= 1 + player.twobyfour.upgrade;
                         player.twobyfour.amount += 4 * (1 + player.twobyfour.upgrade);
+                        floatfont(e,"+4 twobyfour","green");
+                    }else{
+                        floatfont(e,"lack of log","red");
                     }
                 }
                 else if ($(this).hasClass("chair")) {
                     if (player.twobyfour.amount >= (1 + player.chair.upgrade) * 2) {
                         player.twobyfour.amount -= 2 * (1 + player.chair.upgrade);
                         player.chair.amount += 1 + player.chair.upgrade;
+                        floatfont(e,"+1 chair","green");
+                    }else{
+                        floatfont(e,"lack of twobyfour","red");
                     }
                 }
                 else if ($(this).hasClass("apple")) {
                     player.apple.amount += 10 * (Math.clamp(player.tree.amount, 0, 1 + player.apple.upgrade));
                 }
             });
-            $(".sell").click(function () {
+            $(".sell").click(function (e) {
                 var type = $(this).attr("class").substr(5, 100)
                 player.money += player[type].amount * player[type].price;
+                if(!player[type].amount==0)
+                floatfont(e,"+"+player[type].amount * player[type].price,"green");
+                else
+                floatfont(e,"lack of "+type,"red");
                 player[type].amount = 0;//TODO
-
+                
             });
-            $(".upgrade").click(function () {
+            $(".upgrade").click(function (e) {
                 var type = $(this).attr("class").substr(8, 100);
-                var cost = $("#Upgrade_" + type + "_cost").html()
+                var cost = $("#Upgrade_" + type + "_cost").html();
                 if (player.money >= cost) {
                     player.money -= cost;
                     player[type].upgrade++;
                     $("#Upgrade_" + type + "_cost").html(Math.round(cost * taxGrow));
                     $("#Upgrade_" + type + "_amount").html(player[type].upgrade);
+
+                    floatfont(e,"upgrade "+type,"green");
+                }else{
+                    floatfont(e,"lack of money","red");
                 }
             });
-            $(".labor").click(function () {
+            $(".labor").click(function (e) {
                 var type = $(this).attr("class").substr(6, 100);
                 var cost = $("#Labor_" + type + "_cost").html()
                 if (player.money >= cost) {
@@ -180,14 +367,38 @@
                     player[type].labor++;
                     $("#Labor_" + type + "_cost").html(Math.round(cost * taxGrow));
                     $("#Labor_" + type + "_amount").html(player[type].labor);
+
+                    floatfont(e,"labor "+type,"green");
+                }else{
+                    floatfont(e,"lack of money","red");
                 }
+            });
+
+            //-----------------------股票-----------------------
+            $(".stockbuy").click(function (e) {
+                var type = $(this).attr("class").substr(9, 100);
+                if( parseInt($("#"+type).html())>player.money)return;
+                if( parseInt($("#"+type).html())==0)return;
+                player.money -= parseInt($("#"+type).html());
+                var total = $("#" + type + "_total").html();
+                total++;
+                $("#" + type + "_total").html(total);
+                floatfont(e,"buy stock ","green");
+            });
+            $(".stocksell").click(function (e) {
+                var type = $(this).attr("class").substr(10, 100);
+                if ($("#" + type + "_total").html() <= 0) return;
+                player.money += parseInt($("#"+type).html());
+                var total = $("#" + type + "_total").html();
+                total--;
+                $("#" + type + "_total").html(total);
+                floatfont(e,"+ "+parseInt($("#"+type).html()),"green");
             });
         }
         function HideContent() {
             $("#Main").hide();
-            $("#Upgrade").hide();
-            $("#Unlock").hide();
-            $("#Labor").hide();
+            //-----------------------股票
+            $("#Stock").hide();
             $("#System").hide();
         }
         function Update() {
@@ -213,199 +424,362 @@
             time++;
         }
         $(document).ready(function () {
+            LoadData();
             SetButton();
             init();
             setInterval(Update, 100)
+            //-----------------股票
+            setInterval(Stocks, 5000)
         });
+        //------------------------------css
+        const getnavigate = (x) => {
+            if (x == 4) {
+                $(".floatline").css({ "display": "none" });
+            } else {
+                $(".floatline").css({ "display": "block" });
+            }
+            switch (x) {
+                case 1:
+                    $('.floatline').animate({ marginLeft: "0px" });
+                    break;
+                case 2:
+                    $('.floatline').animate({ marginLeft: "250px" });
+                    break;
 
+            }
+        }
+        //-----------------------------股票
+        function Stocks() {
+            for (let i = 1; i <= 5; i++) {
+                let rd = Math.floor((Math.random() * 400) - 200);
+                let total = parseInt($("#stock" + i).html());
+                if (rd > 0) {
+                    $("#stocking" + i).css("color", "red");
+                } else {
+                    $("#stocking" + i).css("color", "green");
+                }
+                $("#stocking" + i).html(rd);
+                total = total + rd;
+                if(total<0){
+                    total = 0;
+                }
+                $("#stock" + i).html(total);
+            }
+        }
+        //-------------------------------漂浮字體
+        function floatfont (e,text,color) {
+            
+            var $i = $("<span />").text(text);
+                var x = e.pageX,
+                    y = e.pageY;
+                $i.css({
+                    "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
+                    "top": y - 20,
+                    "left": x,
+                    "position": "absolute",
+                    "font-weight": "bold",
+                    "color": color
+                });
+                $("body").append($i);
+                $i.animate({
+                    "top": y - 180,
+                    "opacity": 0
+                },
+                    1500,
+                    function () {
+                        $i.remove();
+                    });
+
+        }
     </script>
-    <title>🌳</title>
+    <title>🌳 植樹節 🌳</title>
 </head>
 
 <body>
     <div class="Header">
-        <table>
-            <tr>
-                <td>💰:</td>
-                <td id="Money">0</td>
-                <td><button id="Switch_main">主頁面</button></td>
-                <td><button id="Switch_upgrade">升級</button></td>
-                <td><button id="Switch_unlock">解鎖</button></td>
-                <td><button id="Switch_labor">雇員</button></td>
-                <td><button id="Switch_system">系統</button></td>
-            </tr>
-        </table>
+        <h1>
+            <span role="img" aria-label="message">
+                🌳 植樹節 🌳
+            </span>
+        </h1>
+        <div id="total_money">💰：
+            <div id="Money">0</div>
+        </div>
+        <div id="Switch_system" onclick="getnavigate(4)"><img src="img/member.png" alt="member"> </div>
+
     </div>
-    <hr>
-    <div class="Content">
-        <div id="Main">
+    <div class="section">
+        <div class="Content">
+            <div class="navigation">
+                <div class="floatline"></div>
+
+                <div id="Switch_main" onclick="getnavigate(1)">工廠</div>
+
+                <div id="Switch_stock" onclick="getnavigate(2)">股票</div>
+
+
+
+            </div>
+            <div id="Main">
+                <table>
+                    <tr>
+                        <td>
+                            <div>數量</div>
+                        </td>
+                        <td>
+                            <div>生產</div>
+                        </td>
+                        <td>
+                            <div>兜售</div>
+                        </td>
+                        <td>
+                            <div>升級</div>
+                        </td>
+                        <td>
+                            <div>員工</div>
+                        </td>
+                    </tr>
+                    <tr style="cursor: pointer;">
+                        <td>
+                            <div id="Tree">0</div>
+                        </td>
+                        <td>
+                            <div class="action tree">🌳</div>
+                        </td>
+                        <td>
+                            <div class="sell tree">💵&nbsp;-&nbsp;<span class="price"> 1</span></div>
+                        </td>
+                        <td>
+                            <div class="upgrade tree">⬆️&nbsp;-&nbsp;<span id="Upgrade_tree_amount">0</span></div>
+                            <div class="small" id="Upgrade_tree_cost">10</div>
+                        </td>
+                        <td>
+                            <div class="labor tree">👷‍♂️&nbsp;-&nbsp;<span id="Labor_tree_amount">0</span></div>
+                            <div class="small" id="Labor_tree_cost">500</div>
+                        </td>
+                    </tr>
+                    <tr style="cursor: pointer;">
+                        <td>
+                            <div id="Log">0</div>
+                        </td>
+                        <td class="unlock log">
+                            <div>🔓</div>
+                            <div class="small" id="Unlock_log_cost">200</div>
+                        </td>
+                        <div class=""></div>
+                        <td>
+                            <div class="action log">🪓</div>
+                        </td>
+                        <td>
+                            <div class="sell log">💵&nbsp;-&nbsp;<span class="price">2</span></div>
+                        </td>
+                        <td>
+                            <div class="upgrade log">⬆️&nbsp;-&nbsp;<span id="Upgrade_log_amount">0</span></div>
+                            <div class="small log" id="Upgrade_log_cost">100</div>
+                        </td>
+                        <td>
+                            <div class="labor log">👷‍♂️&nbsp;-&nbsp;<span id="Labor_log_amount">0</span></div>
+                            <div class="small log" id="Labor_log_cost">1000</div>
+                        </td>
+            </div>
+            </tr>
+            <tr class="log" style="cursor: pointer;">
+                <td>
+                    <div id="Twobyfour">0</div>
+                </td>
+                <td class="unlock twobyfour">
+                    <div>🔓</div>
+                    <div class="small" id="Unlock_twobyfour_cost">400</div>
+                </td>
+                <div class="twobyfour">
+                    <td>
+                        <div class="action twobyfour">🧱</div>
+                    </td>
+                    <td>
+                        <div class="sell twobyfour">💵&nbsp;-&nbsp;<span class="price">4</span></div>
+                    </td>
+                    <td>
+                        <div class="upgrade twobyfour">⬆️&nbsp;-&nbsp;<span id="Upgrade_twobyfour_amount">0</span></div>
+                        <div class="small twobyfour" id="Upgrade_twobyfour_cost">200</div>
+                    </td>
+                    <td>
+                        <div class="labor twobyfour">👷‍♂️&nbsp;-&nbsp;<span id="Labor__amount">0</span></div>
+                        <div class="small twobyfour" id="Labor_twobyfour_cost">2000</div>
+                    </td>
+                </div>
+            </tr>
+            <tr class="twobyfour" style="cursor: pointer;">
+                <td>
+                    <div id="Chair">0</div>
+                </td>
+                <td class="unlock chair">
+                    <div>🔓</div>
+                    <div class="small" id="Unlock_chair_cost">800</div>
+                </td>
+                <div class="chair">
+                    <td>
+                        <div class="action chair">🪑</div>
+                    </td>
+                    <td>
+                        <div class="sell chair">💵&nbsp;-&nbsp;<span class="price">8</span></div>
+                    </td>
+                    <td>
+                        <div class="upgrade chair">⬆️&nbsp;-&nbsp;<span id="Upgrade_chair_amount">0</span></div>
+                        <div class="small chair" id="Upgrade_chair_cost">400</div>
+                    </td>
+                    <td>
+                        <div class="labor chair">👷‍♂️&nbsp;-&nbsp;<span id="Labor_chair_amount">0</span></div>
+                        <div class="small chair" id="Labor_chair_cost">4000</div>
+                    </td>
+                </div>
+            </tr>
+
+            </table>
+        </div>
+
+        <div id="Labor" style="display:none">
+
+            <p id="Labor_log_cost">1000</p>
+            <p id="Labor_twobyfour_cost">2000</p>
+            <p id="Labor_chair_cost">4000</p>
+        </div>
+
+        <div id="Stock">
             <table>
                 <tr>
-                    <td>🌳:</td>
-                    <td id="Tree">0</td>
-                    <td><button class="action tree">🌱</button></td>
-                    <td><button class="sell tree">💵:<span class="price">1</span></button></td>
+                    <td>
+                        <div>股名</div>
+                    </td>
+                    <td>
+                        <div>漲跌</div>
+                    </td>
+                    <td>
+                        <div>股價</div>
+                    </td>
+                    <td>
+                        <div>持有</div>
+                    </td>
+                    <td>
+                        <div>買</div>
+                    </td>
+                    <td>
+                        <div>賣</div>
+                    </td>
                 </tr>
-                <tr class="log">
-                    <td><img src="img/wood.png" alt="" height=16>:</td>
-                    <td id="Log">0</td>
-                    <td><button class="action log">🪓</button></td>
-                    <td><button class="sell log">💵:2</button></td>
+                <tr>
+                    <td>
+                        <div>陽明</div>
+                    </td>
+                    <td>
+                        <div id="stocking1">0</div>
+                    </td>
+                    <td>
+                        <div id="stock1">1000</div>
+                    </td>
+                    <td>
+                        <div id="stock1_total">0</div>
+                    </td>
+                    <td>
+                        <div class="stockbuy stock1" style="cursor: pointer;">+</div>
+                    </td>
+                    <td>
+                        <div class="stocksell stock1" style="cursor: pointer;">-</div>
+                    </td>
                 </tr>
-                <tr class="twobyfour">
-                    <td>🧱:</td>
-                    <td id="Twobyfour">0</td>
-                    <td><button class="action twobyfour">🔨</button></td>
-                    <td><button class="sell twobyfour">💵:4</button></td>
+                <tr>
+                    <td>
+                        <div>華航</div>
+                    </td>
+                    <td>
+                        <div id="stocking2">0</div>
+                    </td>
+                    <td>
+                        <div id="stock2">1000</div>
+                    </td>
+                    <td>
+                        <div id="stock2_total">0</div>
+                    </td>
+                    <td>
+                        <div class="stockbuy stock2" style="cursor: pointer;">+</div>
+                    </td>
+                    <td>
+                        <div class="stocksell stock2" style="cursor: pointer;">-</div>
+                    </td>
                 </tr>
-                <tr class="chair">
-                    <td>🪑:</td>
-                    <td id="Chair">0</td>
-                    <td><button class="action chair">🔨</button></td>
-                    <td><button class="sell chair">💵:20</button></td>
+                <tr>
+                    <td>
+                        <div>長榮航</div>
+                    </td>
+                    <td>
+                        <div id="stocking3">0</div>
+                    </td>
+                    <td>
+                        <div id="stock3">1000</div>
+                    </td>
+                    <td>
+                        <div id="stock3_total">0</div>
+                    </td>
+                    <td>
+                        <div class="stockbuy stock3" style="cursor: pointer;">+</div>
+                    </td>
+                    <td>
+                        <div class="stocksell stock3" style="cursor: pointer;">-</div>
+                    </td>
                 </tr>
-                <tr class="apple">
-                    <td>🍎:</td>
-                    <td id="Apple">0</td>
-                    <td><button class="action apple">🖐</button></td>
-                    <td><button class="sell apple">💵:5</button></td>
+                <tr>
+                    <td>
+                        <div>群創</div>
+                    </td>
+                    <td>
+                        <div id="stocking4">0</div>
+                    </td>
+                    <td>
+                        <div id="stock4">1000</div>
+                    </td>
+                    <td>
+                        <div id="stock4_total">0</div>
+                    </td>
+                    <td>
+                        <div class="stockbuy stock4" style="cursor: pointer;">+</div>
+                    </td>
+                    <td>
+                        <div class="stocksell stock4" style="cursor: pointer;">-</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div>友達</div>
+                    </td>
+                    <td>
+                        <div id="stocking5">0</div>
+                    </td>
+                    <td>
+                        <div id="stock5">1000</div>
+                    </td>
+                    <td>
+                        <div id="stock5_total">0</div>
+                    </td>
+                    <td>
+                        <div class="stockbuy stock5" style="cursor: pointer;">+</div>
+                    </td>
+                    <td>
+                        <div class="stocksell stock5" style="cursor: pointer;">-</div>
+                    </td>
                 </tr>
             </table>
         </div>
-        <div id="Upgrade">
-            <table>
-                <tr>
-                    <th>升級</th>
-                    <th>說明</th>
-                    <th>💸</th>
-                    <th>等級</th>
-                </tr>
-                <tr>
-                    <td>擴建林場</td>
-                    <td>樹產出+1</td>
-                    <td id="Upgrade_tree_cost">10</td>
-                    <td id="Upgrade_tree_amount">0</td>
-                    <td><button class="upgrade tree">⬆️</button></td>
-                </tr>
-                <tr class="log">
-                    <td>斧頭加強</td>
-                    <td>原木產出+10</td>
-                    <td id="Upgrade_log_cost">100</td>
-                    <td id="Upgrade_log_amount">0</td>
-                    <td><button class="upgrade log">⬆️</button></td>
-                </tr>
-                <tr class="twobyfour">
-                    <td>木鋸加強</td>
-                    <td>木材產出+4</td>
-                    <td id="Upgrade_twobyfour_cost">200</td>
-                    <td id="Upgrade_twobyfour_amount">0</td>
-                    <td><button class="upgrade twobyfour">⬆️</button></td>
-                </tr>
-                <tr class="chair">
-                    <td>工具加強</td>
-                    <td>椅子產出+1</td>
-                    <td id="Upgrade_chair_cost">400</td>
-                    <td id="Upgrade_chair_amount">0</td>
-                    <td><button class="upgrade chair">⬆️</button></td>
-                </tr>
-                <tr class="apple">
-                    <td>手速鍛鍊</td>
-                    <td>蘋果產出+10</td>
-                    <td id="Upgrade_apple_cost">100</td>
-                    <td id="Upgrade_apple_amount">0</td>
-                    <td><button class="upgrade apple">⬆️</button></td>
-                </tr>
-            </table>
-        </div>
-        <div id="Unlock">
-            <table>
-                <tr>
-                    <th>解鎖</th>
-                    <th>說明</th>
-                    <th>💸</th>
-                </tr>
-                <tr>
-                    <td>砍樹</td>
-                    <td>砍1顆樹產出10原木</td>
-                    <td id="Unlock_log_cost">100</td>
-                    <td><button class="unlock log">🔓</button></td>
-                </tr>
-                <tr>
-                    <td>鋸木</td>
-                    <td>將1個原木加工成4個木材</td>
-                    <td id="Unlock_twobyfour_cost">1000</td>
-                    <td><button class="unlock twobyfour">🔓</button></td>
-                </tr>
-                <tr>
-                    <td>製造椅子</td>
-                    <td>將2個木材製成1張椅子</td>
-                    <td id="Unlock_chair_cost">4000</td>
-                    <td><button class="unlock chair">🔓</button></td>
-                </tr>
-                <tr>
-                    <td>採蘋果</td>
-                    <td>每1顆樹可以採集10顆蘋果 不消耗樹</td>
-                    <td id="Unlock_apple_cost">500</td>
-                    <td><button class="unlock apple">🔓</button></td>
-                </tr>
-            </table>
-        </div>
-        <div id="Labor">
-            <table>
-                <tr>
-                    <th>雇員</th>
-                    <th>說明</th>
-                    <th>💸</th>
-                    <th>人數</th>
-                </tr>
-                <tr>
-                    <td>林場員工</td>
-                    <td>每一秒幫你種一次樹</td>
-                    <td id="Labor_tree_cost">100</td>
-                    <td id="Labor_tree_amount">0</td>
-                    <td><button class="labor tree">👷‍♂️</button></td>
-                </tr>
-                <tr class="log">
-                    <td>伐木工</td>
-                    <td>每一秒幫你砍一次樹</td>
-                    <td id="Labor_log_cost">1000</td>
-                    <td id="Labor_log_amount">0</td>
-                    <td><button class="labor log">👷‍♂️</button></td>
-                </tr>
-                <tr class="twobyfour">
-                    <td>木工</td>
-                    <td>每一秒鋸一次原木</td>
-                    <td id="Labor_twobyfour_cost">2000</td>
-                    <td id="Labor_twobyfour_amount">0</td>
-                    <td><button class="labor twobyfour">👷‍♂️</button></td>
-                </tr>
-                <tr class="chair">
-                    <td>木匠</td>
-                    <td>每一秒做一張椅子</td>
-                    <td id="Labor_chair_cost">4000</td>
-                    <td id="Labor_chair_amount">0</td>
-                    <td><button class="labor chair">👷‍♂️</button></td>
-                </tr>
-                <tr class="apple">
-                    <td>果農</td>
-                    <td>每一秒採集一次蘋果</td>
-                    <td id="Labor_apple_cost">500</td>
-                    <td id="Labor_apple_amount">0</td>
-                    <td><button class="labor apple">👷‍♂️</button></td>
-                </tr>
-            </table>
-        </div>
-        <div id="System">
-            註冊後即可使用線上存檔功能
+
+        <div id="System" style="display:none">
+            註冊並登入即可使用線上存檔功能
             <table>
                 <tr>
                     <td><button id="button_register">註冊</button></td>
                 </tr>
                 <tr>
-                    <td><button id="button_save">存檔</button></td>
+                    <td><button id="button_login">登入</button></td>
                 </tr>
                 <tr>
-                    <td><button id="button_load">讀檔</button></td>
+                    <td><button id="button_logout" style="display: none;">登出</button></td>
                 </tr>
             </table>
             <table id="table_register" style="display: none;">
@@ -426,7 +800,22 @@
                     <td><button id="button_cancel_register">取消</button></td>
                 </tr>
             </table>
+            <table id="table_login" style="display: none;">
+                <tr>
+                    <td>帳號</td>
+                    <td><input type="text" id="input_login_account"></td>
+                </tr>
+                <tr>
+                    <td>密碼</td>
+                    <td><input type="password" id="input_login_password"></td>
+                </tr>
+                <tr>
+                    <td><button id="button_submit_login">確認</button></td>
+                    <td><button id="button_cancel_login">取消</button></td>
+                </tr>
+            </table>
         </div>
+    </div>
     </div>
 </body>
 
