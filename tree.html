@@ -40,6 +40,18 @@
 
         function LoadData() {
             //TODO
+            var resource = ["tree", "log", "twobyfour", "chair","apple"];
+            resource.forEach(function(x){
+                $("#Upgrade_"+x+"_cost").html($("#Upgrade_"+x+"_cost").html() * (taxGrow ** player[x].upgrade));
+                $("#Upgrade_"+x+"_amount").html(player[x].upgrade);
+                $("#Labor_"+x+"_cost").html($("#Upgrade_"+x+"_cost").html() * (taxGrow ** player[x].upgrade));
+                $("#Labor_"+x+"_amount").html(player[x].upgrade);
+                
+                if (player[x].unlock) {
+                    $("."+x).show();
+                    $(".unlock."+x).hide();
+                }
+            });
         }
         function init() {
             if (player.log.unlock == false) {
@@ -78,65 +90,66 @@
                 HideContent();
                 $("#System").show();
             });
-            
-            $("#button_register").click(function(){
+
+            $("#button_register").click(function () {
                 $("#table_register").show();
                 $("#table_login").hide();
             });
-            $("#button_cancel_register").click(function(){
+            $("#button_cancel_register").click(function () {
                 $("#table_register").hide();
             });
-            $("#button_submit_register").click(function(){
+            $("#button_submit_register").click(function () {
                 var data = JSON.stringify({
-                    account:$("#input_register_account").val(),
-                    password:$("#input_register_password").val(),
-                    username:$("#input_register_username").val()
+                    account: $("#input_register_account").val(),
+                    password: $("#input_register_password").val(),
+                    username: $("#input_register_username").val()
                 });
                 $.ajax({
-                    url:api,
-                    method:"POST",
-                    dataType:"json",
-                    data:data,
-                    success:function(response){
-                        console.log("register success:"+response);
+                    url: api,
+                    method: "POST",
+                    dataType: "json",
+                    data: data,
+                    success: function (response) {
+                        console.log("register success:" + response);
                     },
-                    error:function(throwError){
-                        alert("register error:"+throwError);
+                    error: function (throwError) {
+                        alert("register error:" + throwError);
                     }
                 });
                 $("#table_register").hide();
             });
-            $("#button_login").click(function(){
+            $("#button_login").click(function () {
                 $("#table_login").show();
                 $("#table_register").hide();
             });
-            $("#button_cancel_login").click(function(){
+            $("#button_cancel_login").click(function () {
                 $("#table_login").hide();
             });
-            $("#button_submit_login").click(function(){
+            $("#button_submit_login").click(function () {
                 var data = JSON.stringify({
-                    account:$("#input_login_account").val(),
-                    password:$("#input_login_password").val()
+                    account: $("#input_login_account").val(),
+                    password: $("#input_login_password").val()
                 });
                 $.ajax({
-                    url:api,
-                    method:"POST",
-                    dataType:"json",
-                    data:data,
-                    success:function(response){
-                        console.log("login success:"+response);
+                    url: api,
+                    method: "POST",
+                    dataType: "json",
+                    data: data,
+                    success: function (response) {
+                        console.log("login success:" + response);
                         var result = jQuery.parseJSON(response);
-                        if(result.success)
-                        {
-                            alert("登入成功:"+result.message);
+                        if (result.success) {
+                            alert("登入成功:" + result.message);
+                            $("#button_logout").show();
+                            $("#button_login").hide();
+                            $("#button_register").hide();
                         }
-                        else
-                        {
-                            alert("登入失敗:"+result.error);
+                        else {
+                            alert("登入失敗:" + result.error);
                         }
                     },
-                    error:function(throwError){
-                        alert("login error:"+throwError);
+                    error: function (throwError) {
+                        alert("login error:" + throwError);
                     }
                 });
                 $("#table_login").hide();
@@ -175,35 +188,35 @@
                     }
                 }
                 else if ($(this).hasClass("apple")) {
-                    player.apple.amount += 10 * (Math.clamp(player.tree.amount,0,1 + player.apple.upgrade));
+                    player.apple.amount += 10 * (Math.clamp(player.tree.amount, 0, 1 + player.apple.upgrade));
                 }
             });
-        $(".sell").click(function () {
-            var type = $(this).attr("class").substr(5, 100)
-            player.money += player[type].amount * player[type].price;
-            player[type].amount = 0;//TODO
+            $(".sell").click(function () {
+                var type = $(this).attr("class").substr(5, 100)
+                player.money += player[type].amount * player[type].price;
+                player[type].amount = 0;//TODO
 
-        });
-        $(".upgrade").click(function () {
-            var type = $(this).attr("class").substr(8, 100);
-            var cost = $("#Upgrade_" + type + "_cost").html()
-            if (player.money >= cost) {
-                player.money -= cost;
-                player[type].upgrade++;
-                $("#Upgrade_" + type + "_cost").html(Math.round(cost * taxGrow));
-                $("#Upgrade_" + type + "_amount").html(player[type].upgrade);
-            }
-        });
-        $(".labor").click(function () {
-            var type = $(this).attr("class").substr(6, 100);
-            var cost = $("#Labor_" + type + "_cost").html()
-            if (player.money >= cost) {
-                player.money -= cost;
-                player[type].labor++;
-                $("#Labor_" + type + "_cost").html(Math.round(cost * taxGrow));
-                $("#Labor_" + type + "_amount").html(player[type].labor);
-            }
-        });
+            });
+            $(".upgrade").click(function () {
+                var type = $(this).attr("class").substr(8, 100);
+                var cost = $("#Upgrade_" + type + "_cost").html()
+                if (player.money >= cost) {
+                    player.money -= cost;
+                    player[type].upgrade++;
+                    $("#Upgrade_" + type + "_cost").html(Math.round(cost * taxGrow));
+                    $("#Upgrade_" + type + "_amount").html(player[type].upgrade);
+                }
+            });
+            $(".labor").click(function () {
+                var type = $(this).attr("class").substr(6, 100);
+                var cost = $("#Labor_" + type + "_cost").html()
+                if (player.money >= cost) {
+                    player.money -= cost;
+                    player[type].labor++;
+                    $("#Labor_" + type + "_cost").html(Math.round(cost * taxGrow));
+                    $("#Labor_" + type + "_amount").html(player[type].labor);
+                }
+            });
         }
         function HideContent() {
             $("#Main").hide();
@@ -235,7 +248,6 @@
             time++;
         }
         $(document).ready(function () {
-            LoadData();
             SetButton();
             init();
             setInterval(Update, 100)
@@ -421,9 +433,15 @@
         <div id="System">
             註冊並登入即可使用線上存檔功能
             <table>
-                <tr><td><button id="button_register">註冊</button></td></tr>
-                <tr><td><button id="button_login">登入</button></td></tr>
-                <tr><td><button id="button_logout" style="display: none;">登出</button></td></tr>
+                <tr>
+                    <td><button id="button_register">註冊</button></td>
+                </tr>
+                <tr>
+                    <td><button id="button_login">登入</button></td>
+                </tr>
+                <tr>
+                    <td><button id="button_logout" style="display: none;">登出</button></td>
+                </tr>
             </table>
             <table id="table_register" style="display: none;">
                 <tr>
