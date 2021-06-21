@@ -186,16 +186,16 @@
 
         function LoadData() {
             //TODO
-            var resource = ["tree", "log", "twobyfour", "chair","apple"];
-            resource.forEach(function(x){
-                $("#Upgrade_"+x+"_cost").html($("#Upgrade_"+x+"_cost").html() * (taxGrow ** player[x].upgrade));
-                $("#Upgrade_"+x+"_amount").html(player[x].upgrade);
-                $("#Labor_"+x+"_cost").html($("#Upgrade_"+x+"_cost").html() * (taxGrow ** player[x].upgrade));
-                $("#Labor_"+x+"_amount").html(player[x].upgrade);
-                
+            var resource = ["tree", "log", "twobyfour", "chair", "apple"];
+            resource.forEach(function (x) {
+                $("#Upgrade_" + x + "_cost").html($("#Upgrade_" + x + "_cost").html() * (taxGrow ** player[x].upgrade));
+                $("#Upgrade_" + x + "_amount").html(player[x].upgrade);
+                $("#Labor_" + x + "_cost").html($("#Upgrade_" + x + "_cost").html() * (taxGrow ** player[x].upgrade));
+                $("#Labor_" + x + "_amount").html(player[x].upgrade);
+
                 if (player[x].unlock) {
-                    $("."+x).show();
-                    $(".unlock."+x).hide();
+                    $("." + x).show();
+                    $(".unlock." + x).hide();
                 }
             });
         }
@@ -267,59 +267,65 @@
                     player[type].unlock = true;
                     $("." + type).show();
                     $(this).hide();
-                    floatfont(e,"unlock "+type,"green");
-                }else{
-                    floatfont(e,"lack of money","red");
+                    floatfont(e, "unlock " + type, "green");
+                } else {
+                    floatfont(e, "lack of money", "red");
                 }
-                
-                
+
+
             });
 
             $(".action").click(function (e) {
-                if ($(this).hasClass("tree")){
-                    player.tree.amount += 1 + player.tree.upgrade;
-                    floatfont(e,"+1 tree","green");
-                    }
+                if ($(this).hasClass("tree")) {
+                    var add = 1 + player.tree.upgrade;
+                    player.tree.amount += add;
+                    floatfont(e, "+" + add + " tree", "green");
+                }
                 else if ($(this).hasClass("log")) {
                     if (player.tree.amount >= (1 + player.log.upgrade)) {
+                        var add = 10 * (1 + player.log.upgrade);
                         player.tree.amount -= 1 + player.log.upgrade;
-                        player.log.amount += 10 * (1 + player.log.upgrade);
-                        floatfont(e,"+10 log","green");
-                    }else{
-                        floatfont(e,"lack of tree","red");
+                        player.log.amount += add;
+                        floatfont(e, "+" + add + " log", "green");
+                    } else {
+                        floatfont(e, "lack of tree", "red");
                     }
                 }
                 else if ($(this).hasClass("twobyfour")) {
                     if (player.log.amount >= (1 + player.twobyfour.upgrade)) {
+                        var add = 4 * (1 + player.twobyfour.upgrade);
                         player.log.amount -= 1 + player.twobyfour.upgrade;
-                        player.twobyfour.amount += 4 * (1 + player.twobyfour.upgrade);
-                        floatfont(e,"+4 twobyfour","green");
-                    }else{
-                        floatfont(e,"lack of log","red");
+                        player.twobyfour.amount += add;
+                        floatfont(e, "+" + add + " twobyfour", "green");
+                    } else {
+                        floatfont(e, "lack of log", "red");
                     }
                 }
                 else if ($(this).hasClass("chair")) {
                     if (player.twobyfour.amount >= (1 + player.chair.upgrade) * 2) {
+                        var add = 1 + player.chair.upgrade;
                         player.twobyfour.amount -= 2 * (1 + player.chair.upgrade);
-                        player.chair.amount += 1 + player.chair.upgrade;
-                        floatfont(e,"+1 chair","green");
-                    }else{
-                        floatfont(e,"lack of twobyfour","red");
+                        player.chair.amount += add;
+                        floatfont(e, "+" + add + " chair", "green");
+                    } else {
+                        floatfont(e, "lack of twobyfour", "red");
                     }
                 }
                 else if ($(this).hasClass("apple")) {
-                    player.apple.amount += 10 * (Math.clamp(player.tree.amount, 0, 1 + player.apple.upgrade));
+                    var add = 10 * (Math.clamp(player.tree.amount, 0, 1 + player.apple.upgrade));
+                    player.apple.amount += add;
+                    floatfont(e, "+" + add + " apple", "green");
                 }
             });
             $(".sell").click(function (e) {
                 var type = $(this).attr("class").substr(5, 100)
                 player.money += player[type].amount * player[type].price;
-                if(!player[type].amount==0)
-                floatfont(e,"+"+player[type].amount * player[type].price,"green");
+                if (!player[type].amount == 0)
+                    floatfont(e, "+" + player[type].amount * player[type].price, "green");
                 else
-                floatfont(e,"lack of "+type,"red");
+                    floatfont(e, "lack of " + type, "red");
                 player[type].amount = 0;//TODO
-                
+
             });
             $(".upgrade").click(function (e) {
                 var type = $(this).attr("class").substr(8, 100);
@@ -330,9 +336,9 @@
                     $("#Upgrade_" + type + "_cost").html(Math.round(cost * taxGrow));
                     $("#Upgrade_" + type + "_amount").html(player[type].upgrade);
 
-                    floatfont(e,"upgrade "+type,"green");
-                }else{
-                    floatfont(e,"lack of money","red");
+                    floatfont(e, "upgrade " + type, "green");
+                } else {
+                    floatfont(e, "lack of money", "red");
                 }
             });
             $(".labor").click(function (e) {
@@ -344,31 +350,31 @@
                     $("#Labor_" + type + "_cost").html(Math.round(cost * taxGrow));
                     $("#Labor_" + type + "_amount").html(player[type].labor);
 
-                    floatfont(e,"labor "+type,"green");
-                }else{
-                    floatfont(e,"lack of money","red");
+                    floatfont(e, "labor " + type, "green");
+                } else {
+                    floatfont(e, "lack of money", "red");
                 }
             });
 
             //-----------------------股票-----------------------
             $(".stockbuy").click(function (e) {
                 var type = $(this).attr("class").substr(9, 100);
-                if( parseInt($("#"+type).html())>player.money)return;
-                if( parseInt($("#"+type).html())==0)return;
-                player.money -= parseInt($("#"+type).html());
+                if (parseInt($("#" + type).html()) > player.money) return;
+                if (parseInt($("#" + type).html()) == 0) return;
+                player.money -= parseInt($("#" + type).html());
                 var total = $("#" + type + "_total").html();
                 total++;
                 $("#" + type + "_total").html(total);
-                floatfont(e,"buy stock ","green");
+                floatfont(e, "buy stock ", "green");
             });
             $(".stocksell").click(function (e) {
                 var type = $(this).attr("class").substr(10, 100);
                 if ($("#" + type + "_total").html() <= 0) return;
-                player.money += parseInt($("#"+type).html());
+                player.money += parseInt($("#" + type).html());
                 var total = $("#" + type + "_total").html();
                 total--;
                 $("#" + type + "_total").html(total);
-                floatfont(e,"+ "+parseInt($("#"+type).html()),"green");
+                floatfont(e, "+ " + parseInt($("#" + type).html()), "green");
             });
         }
         function HideContent() {
@@ -435,35 +441,35 @@
                 }
                 $("#stocking" + i).html(rd);
                 total = total + rd;
-                if(total<0){
+                if (total < 0) {
                     total = 0;
                 }
                 $("#stock" + i).html(total);
             }
         }
         //-------------------------------漂浮字體
-        function floatfont (e,text,color) {
-            
+        function floatfont(e, text, color) {
+
             var $i = $("<span />").text(text);
-                var x = e.pageX,
-                    y = e.pageY;
-                $i.css({
-                    "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
-                    "top": y - 20,
-                    "left": x,
-                    "position": "absolute",
-                    "font-weight": "bold",
-                    "color": color
+            var x = e.pageX,
+                y = e.pageY;
+            $i.css({
+                "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
+                "top": y - 20,
+                "left": x,
+                "position": "absolute",
+                "font-weight": "bold",
+                "color": color
+            });
+            $("body").append($i);
+            $i.animate({
+                "top": y - 180,
+                "opacity": 0
+            },
+                1500,
+                function () {
+                    $i.remove();
                 });
-                $("body").append($i);
-                $i.animate({
-                    "top": y - 180,
-                    "opacity": 0
-                },
-                    1500,
-                    function () {
-                        $i.remove();
-                    });
 
         }
     </script>
