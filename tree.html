@@ -36,6 +36,8 @@
         var time = 0;
         var taxGrow = 2;
 
+        var api = "http://localhost/api/[router]/[id]";
+
         function LoadData() {
             //TODO
         }
@@ -71,6 +73,73 @@
             $("#Switch_labor").click(function () {
                 HideContent();
                 $("#Labor").show();
+            });
+            $("#Switch_system").click(function () {
+                HideContent();
+                $("#System").show();
+            });
+            
+            $("#button_register").click(function(){
+                $("#table_register").show();
+                $("#table_login").hide();
+            });
+            $("#button_cancel_register").click(function(){
+                $("#table_register").hide();
+            });
+            $("#button_submit_register").click(function(){
+                var data = JSON.stringify({
+                    account:$("#input_register_account").val(),
+                    password:$("#input_register_password").val(),
+                    username:$("#input_register_username").val()
+                });
+                $.ajax({
+                    url:api,
+                    method:"POST",
+                    dataType:"json",
+                    data:data,
+                    success:function(response){
+                        console.log("register success:"+response);
+                    },
+                    error:function(throwError){
+                        alert("register error:"+throwError);
+                    }
+                });
+                $("#table_register").hide();
+            });
+            $("#button_login").click(function(){
+                $("#table_login").show();
+                $("#table_register").hide();
+            });
+            $("#button_cancel_login").click(function(){
+                $("#table_login").hide();
+            });
+            $("#button_submit_login").click(function(){
+                var data = JSON.stringify({
+                    account:$("#input_login_account").val(),
+                    password:$("#input_login_password").val()
+                });
+                $.ajax({
+                    url:api,
+                    method:"POST",
+                    dataType:"json",
+                    data:data,
+                    success:function(response){
+                        console.log("login success:"+response);
+                        var result = jQuery.parseJSON(response);
+                        if(result.success)
+                        {
+                            alert("登入成功:"+result.message);
+                        }
+                        else
+                        {
+                            alert("登入失敗:"+result.error);
+                        }
+                    },
+                    error:function(throwError){
+                        alert("login error:"+throwError);
+                    }
+                });
+                $("#table_login").hide();
             });
 
             $(".unlock").click(function () {
@@ -141,6 +210,7 @@
             $("#Upgrade").hide();
             $("#Unlock").hide();
             $("#Labor").hide();
+            $("#System").hide();
         }
         function Update() {
             $("#Money").html(player.money);
@@ -185,6 +255,7 @@
                 <td><button id="Switch_upgrade">升級</button></td>
                 <td><button id="Switch_unlock">解鎖</button></td>
                 <td><button id="Switch_labor">雇員</button></td>
+                <td><button id="Switch_system">系統</button></td>
             </tr>
         </table>
     </div>
@@ -290,7 +361,7 @@
                 </tr>
                 <tr>
                     <td>製造椅子</td>
-                    <td>將2個原木製成1張椅子</td>
+                    <td>將2個木材製成1張椅子</td>
                     <td id="Unlock_chair_cost">4000</td>
                     <td><button class="unlock chair">🔓</button></td>
                 </tr>
@@ -344,6 +415,46 @@
                     <td id="Labor_apple_cost">500</td>
                     <td id="Labor_apple_amount">0</td>
                     <td><button class="labor apple">👷‍♂️</button></td>
+                </tr>
+            </table>
+        </div>
+        <div id="System">
+            註冊並登入即可使用線上存檔功能
+            <table>
+                <tr><td><button id="button_register">註冊</button></td></tr>
+                <tr><td><button id="button_login">登入</button></td></tr>
+                <tr><td><button id="button_logout" style="display: none;">登出</button></td></tr>
+            </table>
+            <table id="table_register" style="display: none;">
+                <tr>
+                    <td>帳號</td>
+                    <td><input type="text" id="input_register_account"></td>
+                </tr>
+                <tr>
+                    <td>密碼</td>
+                    <td><input type="password" id="input_register_password"></td>
+                </tr>
+                <tr>
+                    <td>暱稱</td>
+                    <td><input type="text" id="input_register_username"></td>
+                </tr>
+                <tr>
+                    <td><button id="button_submit_register">確認</button></td>
+                    <td><button id="button_cancel_register">取消</button></td>
+                </tr>
+            </table>
+            <table id="table_login" style="display: none;">
+                <tr>
+                    <td>帳號</td>
+                    <td><input type="text" id="input_login_account"></td>
+                </tr>
+                <tr>
+                    <td>密碼</td>
+                    <td><input type="password" id="input_login_password"></td>
+                </tr>
+                <tr>
+                    <td><button id="button_submit_login">確認</button></td>
+                    <td><button id="button_cancel_login">取消</button></td>
                 </tr>
             </table>
         </div>
