@@ -361,20 +361,25 @@
                 var type = $(this).attr("class").substr(9, 100);
                 if (parseInt($("#" + type).html()) > player.money) return;
                 if (parseInt($("#" + type).html()) == 0) return;
-                player.money -= parseInt($("#" + type).html());
-                var total = $("#" + type + "_total").html();
-                total++;
+
+                var available = Math.floor(player.money/$("#"+type).html());
+                var buy_amount = Math.clamp(parseInt($("#stock_buy_number").val()),1,available);
+                player.money -= parseInt($("#" + type).html())*buy_amount;
+                var total = parseInt($("#" + type + "_total").html());
+                total+=buy_amount;
                 $("#" + type + "_total").html(total);
                 floatfont(e, "buy stock ", "green");
             });
             $(".stocksell").click(function (e) {
                 var type = $(this).attr("class").substr(10, 100);
-                if ($("#" + type + "_total").html() <= 0) return;
-                player.money += parseInt($("#" + type).html());
-                var total = $("#" + type + "_total").html();
-                total--;
+                var total = parseInt($("#" + type + "_total").html());
+                if (total <= 0) return;
+                
+                var sell_amount = Math.clamp($("#stock_buy_number").val(),1,total);
+                player.money += parseInt($("#" + type).html())*sell_amount;
+                total-=sell_amount;
                 $("#" + type + "_total").html(total);
-                floatfont(e, "+ " + parseInt($("#" + type).html()), "green");
+                floatfont(e, "+ " + parseInt($("#" + type).html())*sell_amount, "green");
             });
         }
         function HideContent() {
@@ -584,7 +589,7 @@
                         <div class="small twobyfour" id="Upgrade_twobyfour_cost">200</div>
                     </td>
                     <td>
-                        <div class="labor twobyfour">👷‍♂️&nbsp;-&nbsp;<span id="Labor__amount">0</span></div>
+                        <div class="labor twobyfour">👷‍♂️&nbsp;-&nbsp;<span id="Labor_twobyfour_amount">0</span></div>
                         <div class="small twobyfour" id="Labor_twobyfour_cost">2000</div>
                     </td>
                 </div>
@@ -626,6 +631,12 @@
         </div>
 
         <div id="Stock">
+            <table>
+                <tr>
+                    <td>交易數量</td>
+                    <td><input id="stock_buy_number" type="number" min="1" step="1" value="1"></td>
+                </tr>
+            </table>
             <table>
                 <tr>
                     <td>
