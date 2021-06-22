@@ -453,11 +453,14 @@
             }
         }
         function sellAllSocks(){
+            var tmp = $("#stock_buy_number").val();
             $("#stock_buy_number").val(Number.MAX_SAFE_INTEGER);
             
             for (let i = 1; i <= 5; i++) {
                 $(".stocksell.stock" + i).click();
             }
+            
+            $("#stock_buy_number").val(tmp);
         }
         //-------------------------------漂浮字體
         function floatfont(e, text, color) {
