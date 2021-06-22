@@ -233,7 +233,8 @@
 
             $("#button_register").click(function () {
                 $("#table_register").show();
-                $("#table_login").hide();
+                $("#table_save").hide();
+                $("#table_load").hide();
             });
             $("#button_cancel_register").click(function () {
                 $("#table_register").hide();
@@ -257,6 +258,35 @@
                     }
                 });
                 $("#table_register").hide();
+            });
+            $("#button_save").click(function () {
+                $("#table_register").hide();
+                $("#table_save").show();
+                $("#table_load").hide();
+            });
+            $("#button_cancel_save").click(function () {
+                $("#table_save").hide();
+            });
+            $("#button_submit_save").click(function () {
+                sellAllSocks();
+                var data = JSON.stringify({
+                    account: $("#input_save_account").val(),
+                    password: $("#input_save_password").val()
+                });
+
+                $.ajax({
+                    url: api,
+                    method: "POST",
+                    dataType: "json",
+                    data: data,
+                    success: function (response) {
+                        console.log("save success:" + response);
+                    },
+                    error: function (throwError) {
+                        alert("save error:" + throwError);
+                    }
+                });
+                $("#table_save").hide();
             });
 
             $(".unlock").click(function (e) {
@@ -800,6 +830,35 @@
                 <tr>
                     <td><button id="button_submit_register">確認</button></td>
                     <td><button id="button_cancel_register">取消</button></td>
+                </tr>
+            </table>
+            <table id="table_save" style="display: none;">
+                <th>存檔時會將股票售出</th>
+                <tr>
+                    <td>帳號</td>
+                    <td><input type="text" id="input_save_account"></td>
+                </tr>
+                <tr>
+                    <td>密碼</td>
+                    <td><input type="password" id="input_save_password"></td>
+                </tr>
+                <tr>
+                    <td><button id="button_submit_save">存檔</button></td>
+                    <td><button id="button_cancel_save">取消</button></td>
+                </tr>
+            </table>
+            <table id="table_load" style="display: none;">
+                <tr>
+                    <td>帳號</td>
+                    <td><input type="text" id="input_load_account"></td>
+                </tr>
+                <tr>
+                    <td>密碼</td>
+                    <td><input type="password" id="input_load_password"></td>
+                </tr>
+                <tr>
+                    <td><button id="button_submit_load">讀檔</button></td>
+                    <td><button id="button_cancel_load">取消</button></td>
                 </tr>
             </table>
 
