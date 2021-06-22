@@ -452,6 +452,13 @@
                 $("#stock" + i).html(total);
             }
         }
+        function sellAllSocks(){
+            $("#stock_buy_number").val(Number.MAX_SAFE_INTEGER);
+            
+            for (let i = 1; i <= 5; i++) {
+                $(".stocksell.stock" + i).click();
+            }
+        }
         //-------------------------------漂浮字體
         function floatfont(e, text, color) {
 
