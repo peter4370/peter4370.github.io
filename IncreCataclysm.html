@@ -1,29 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IncreCataclysm</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        * {
+            background-color: black;
+            color: white;
+            margin: auto;
+            width: fit-content;
+            padding: 10px 30px;
+        }
+        div{
+            display: inline-block;
+            vertical-align: top;
+        }
+        button {
+            border: 3px white solid;
+        }
+        button:hover {
+            background-color: dimgray;
+        }
+    </style>
     <script src="js/jquery-3.6.0.min.js"></script>
     <script>
         var currentTime;
         var lastUpdate;
         var delta;
-        function Update()
-        {
+        var dropTable = [
+            {name:"berry",type:"comestible",nutrition:1},
+            {name:"stone",type:"material",nutrition:0},
+            {name:"twig",type:"material",nutrition:0}
+        ];
+        var player = {
+            name:"Player",
+            inventory:[]
+        }
+        function getRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
+        }
+        function initButtons() {
+            $("#forageBtn").click(function () {
+                log("You get " + dropTable[getRandomInt(0,dropTable.length)].name);
+            });
+        }
+        function log(string) {
+            $("#log").html(string + "<br>" + $("#log").html());
+        }
+        function Update() {
             currentTime = performance.now();
-            delta = currentTime - lastUpdate;
+            delta = currentTime - lastUpdate;//use delta to know time interval
             lastUpdate = currentTime;
         }
-        $(document).ready(function(){
+        $(document).ready(function () {
             lastUpdate = currentTime = performance.now();
-            setInterval(Update,0.05);
+            setInterval(Update, 0.05);
+            initButtons();
         });
-        
+
     </script>
 </head>
+
 <body>
-    
+    <div>
+        <p id="log"></p>
+    </div>
+    <div>
+        <button id="forageBtn">Forage</button>
+    </div>
+    <div>
+        <h4>Inventory</h4>
+        <table id="inventory"></table>
+    </div>
 </body>
+
 </html>
